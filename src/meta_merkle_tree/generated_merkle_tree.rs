@@ -53,6 +53,9 @@ pub enum MerkleRootGeneratorError {
     #[error(transparent)]
     WincodeReadError(#[from] wincode::ReadError),
 
+    #[error(transparent)]
+    WincodeIoWriteError(#[from] wincode::io::WriteError),
+
     #[error("MerkleRootGenerator error")]
     MerkleRootGeneratorError,
 
@@ -279,6 +282,8 @@ impl GeneratedMerkleTreeCollection {
 
     /// Write the collection out as a wincode file.
     pub fn write_wincode_to_file(&self, path: &PathBuf) -> Result<(), MerkleRootGeneratorError> {
+        use wincode::io::Writer;
+
         let config = wincode::config::Configuration::default().disable_preallocation_size_limit();
         let file = File::create(path)?;
         let writer = BufWriter::new(file);
@@ -288,6 +293,9 @@ impl GeneratedMerkleTreeCollection {
             self,
             config,
         )?;
+        // BufWriter's Drop attempts to flush but silently swallows errors; flush
+        // explicitly so a short write or I/O failure propagates.
+        adapter.finish()?;
         Ok(())
     }
 
