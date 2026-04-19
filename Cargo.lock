@@ -702,6 +702,7 @@ dependencies = [
  "serde_json",
  "solana-program",
  "thiserror",
+ "wincode",
 ]
 
 [[package]]

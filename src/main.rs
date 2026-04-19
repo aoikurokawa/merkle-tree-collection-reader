@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Instant};
 
 use clap::{Parser, Subcommand};
 use merkle_tree_collection_reader::meta_merkle_tree::generated_merkle_tree::GeneratedMerkleTreeCollection;
@@ -25,6 +25,9 @@ enum Commands {
     /// Load the JSON and write a bincode sibling file (one-time conversion).
     Convert,
     Bincode,
+    /// Load the JSON and write a wincode sibling file (one-time conversion).
+    WincodeConvert,
+    Wincode,
 }
 
 pub fn merkle_tree_collection_file_name(epoch: u64) -> String {
@@ -33,6 +36,10 @@ pub fn merkle_tree_collection_file_name(epoch: u64) -> String {
 
 pub fn merkle_tree_collection_bincode_file_name(epoch: u64) -> String {
     format!("{}_merkle_tree_collection.bin", epoch)
+}
+
+pub fn merkle_tree_collection_wincode_file_name(epoch: u64) -> String {
+    format!("{}_merkle_tree_collection.wincode", epoch)
 }
 
 fn main() -> anyhow::Result<()> {
@@ -71,6 +78,27 @@ fn main() -> anyhow::Result<()> {
                 .join(merkle_tree_collection_bincode_file_name(args.epoch));
             let _merkle_trees = GeneratedMerkleTreeCollection::new_from_file_bincode(&bincode_path)
                 .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
+        }
+        Commands::WincodeConvert => {
+            let merkle_trees =
+                GeneratedMerkleTreeCollection::new_from_file_serde_json_slice(&merkle_tree_path)
+                    .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
+            let wincode_path = args
+                .save_path
+                .join(merkle_tree_collection_wincode_file_name(args.epoch));
+            merkle_trees
+                .write_wincode_to_file(&wincode_path)
+                .map_err(|e| anyhow::anyhow!("Failed to write wincode: {e}"))?;
+            println!("Wrote wincode to {}", wincode_path.display());
+        }
+        Commands::Wincode => {
+            let wincode_path = args
+                .save_path
+                .join(merkle_tree_collection_wincode_file_name(args.epoch));
+            let start = Instant::now();
+            let _merkle_trees = GeneratedMerkleTreeCollection::new_from_file_wincode(&wincode_path)
+                .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
+            println!("wincode load: {:?}", start.elapsed());
         }
     }
 
