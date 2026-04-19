@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{BufReader, Write},
+    io::{BufReader, BufWriter, Write},
     path::PathBuf,
 };
 
@@ -43,6 +43,15 @@ pub enum MerkleRootGeneratorError {
 
     #[error(transparent)]
     SimdJsonError(#[from] simd_json::Error),
+
+    #[error(transparent)]
+    SonicRsError(#[from] sonic_rs::Error),
+
+    #[error(transparent)]
+    BincodeEncodeError(#[from] bincode::error::EncodeError),
+
+    #[error(transparent)]
+    BincodeDecodeError(#[from] bincode::error::DecodeError),
 
     #[error("MerkleRootGenerator error")]
     MerkleRootGeneratorError,
@@ -264,6 +273,34 @@ impl GeneratedMerkleTreeCollection {
         let tree: Self = simd_json::serde::from_slice(&mut bytes)?;
 
         Ok(tree)
+    }
+
+    /// Load via SIMD-accelerated `sonic_rs` (no 4 GB limit, 64-bit offsets).
+    pub fn new_from_file_sonic_rs(path: &PathBuf) -> Result<Self, MerkleRootGeneratorError> {
+        let bytes = std::fs::read(path)?;
+        let tree: Self = sonic_rs::from_slice(&bytes)?;
+
+        Ok(tree)
+    }
+
+    /// Load from a streamed bincode file.
+    pub fn new_from_file_bincode(path: &PathBuf) -> Result<Self, MerkleRootGeneratorError> {
+        let file = File::open(path)?;
+        let mut reader = BufReader::new(file);
+        let tree: Self =
+            bincode::serde::decode_from_std_read(&mut reader, bincode::config::standard())?;
+
+        Ok(tree)
+    }
+
+    /// Write the collection out as a streamed bincode file.
+    pub fn write_bincode_to_file(&self, path: &PathBuf) -> Result<(), MerkleRootGeneratorError> {
+        let file = File::create(path)?;
+        let mut writer = BufWriter::new(file);
+        bincode::serde::encode_into_std_write(self, &mut writer, bincode::config::standard())?;
+        writer.flush()?;
+
+        Ok(())
     }
 
     /// Load a serialized GeneratedMerkleTreeCollection from file path

@@ -16,6 +16,11 @@ hyperfine --warmup 3 --min-runs 20 --export-markdown bench.md \
   -n serde_json       './target/release/merkle-tree-collection-reader --save-path /tmp/merkle-tree-collection/958 --epoch 958 serde-json' \
   -n serde_json_slice './target/release/merkle-tree-collection-reader --save-path /tmp/merkle-tree-collection/958 --epoch 958 serde-json-slice' \
   -n simd_json        './target/release/merkle-tree-collection-reader --save-path /tmp/merkle-tree-collection/958 --epoch 958 simd-json'
+  
+  
+hyperfine --warmup 3 --min-runs 20 --export-markdown bench.md \
+  -n serde_json_slice './target/release/merkle-tree-collection-reader --save-path /tmp/merkle-tree-collection/958 --epoch 958 serde-json-slice' \
+  -n sonic_rs         './target/release/merkle-tree-collection-reader --save-path /tmp/merkle-tree-collection/958 --epoch 958 sonic-rs'
 ```
 
 ### Serde JSON

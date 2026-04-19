@@ -23,10 +23,18 @@ enum Commands {
     SerdeJson,
     SerdeJsonSlice,
     SimdJson,
+    SonicRs,
+    /// Load the JSON and write a bincode sibling file (one-time conversion).
+    Convert,
+    Bincode,
 }
 
 pub fn merkle_tree_collection_file_name(epoch: u64) -> String {
     format!("{}_merkle_tree_collection.json", epoch)
+}
+
+pub fn merkle_tree_collection_bincode_file_name(epoch: u64) -> String {
+    format!("{}_merkle_tree_collection.bin", epoch)
 }
 
 fn main() -> anyhow::Result<()> {
@@ -51,6 +59,30 @@ fn main() -> anyhow::Result<()> {
             let _merkle_trees =
                 GeneratedMerkleTreeCollection::new_from_file_simd_json(&merkle_tree_path)
                     .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
+        }
+        Commands::SonicRs => {
+            let _merkle_trees =
+                GeneratedMerkleTreeCollection::new_from_file_sonic_rs(&merkle_tree_path)
+                    .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
+        }
+        Commands::Convert => {
+            let merkle_trees =
+                GeneratedMerkleTreeCollection::new_from_file_serde_json_slice(&merkle_tree_path)
+                    .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
+            let bincode_path = args
+                .save_path
+                .join(merkle_tree_collection_bincode_file_name(args.epoch));
+            merkle_trees
+                .write_bincode_to_file(&bincode_path)
+                .map_err(|e| anyhow::anyhow!("Failed to write bincode: {e}"))?;
+            println!("Wrote bincode to {}", bincode_path.display());
+        }
+        Commands::Bincode => {
+            let bincode_path = args
+                .save_path
+                .join(merkle_tree_collection_bincode_file_name(args.epoch));
+            let _merkle_trees = GeneratedMerkleTreeCollection::new_from_file_bincode(&bincode_path)
+                .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
         }
     }
 
