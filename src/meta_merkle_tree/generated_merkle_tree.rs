@@ -237,6 +237,15 @@ impl GeneratedMerkleTreeCollection {
     }
 
     /// Load a serialized GeneratedMerkleTreeCollection from file path
+    pub fn new_from_file_serde_json(path: &PathBuf) -> Result<Self, MerkleRootGeneratorError> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let tree: Self = serde_json::from_reader(reader)?;
+
+        Ok(tree)
+    }
+
+    /// Load a serialized GeneratedMerkleTreeCollection from file path
     pub fn new_from_file(path: &PathBuf) -> Result<Self, MerkleRootGeneratorError> {
         let file = File::open(path)?;
         let reader = BufReader::new(file);

@@ -35,8 +35,9 @@ fn main() -> anyhow::Result<()> {
             let merkle_tree_path = args
                 .save_path
                 .join(merkle_tree_collection_file_name(args.epoch));
-            let _merkle_trees = GeneratedMerkleTreeCollection::new_from_file(&merkle_tree_path)
-                .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
+            let _merkle_trees =
+                GeneratedMerkleTreeCollection::new_from_file_serde_json(&merkle_tree_path)
+                    .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
         }
     }
 
