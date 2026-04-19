@@ -42,12 +42,6 @@ pub enum MerkleRootGeneratorError {
     SerdeJsonError(#[from] serde_json::Error),
 
     #[error(transparent)]
-    SimdJsonError(#[from] simd_json::Error),
-
-    #[error(transparent)]
-    SonicRsError(#[from] sonic_rs::Error),
-
-    #[error(transparent)]
     BincodeEncodeError(#[from] bincode::error::EncodeError),
 
     #[error(transparent)]
@@ -263,22 +257,6 @@ impl GeneratedMerkleTreeCollection {
     ) -> Result<Self, MerkleRootGeneratorError> {
         let bytes = std::fs::read(path)?;
         let tree: Self = serde_json::from_slice(&bytes)?;
-
-        Ok(tree)
-    }
-
-    /// Load via SIMD-accelerated `simd_json` (serde shim).
-    pub fn new_from_file_simd_json(path: &PathBuf) -> Result<Self, MerkleRootGeneratorError> {
-        let mut bytes = std::fs::read(path)?;
-        let tree: Self = simd_json::serde::from_slice(&mut bytes)?;
-
-        Ok(tree)
-    }
-
-    /// Load via SIMD-accelerated `sonic_rs` (no 4 GB limit, 64-bit offsets).
-    pub fn new_from_file_sonic_rs(path: &PathBuf) -> Result<Self, MerkleRootGeneratorError> {
-        let bytes = std::fs::read(path)?;
-        let tree: Self = sonic_rs::from_slice(&bytes)?;
 
         Ok(tree)
     }

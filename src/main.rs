@@ -22,8 +22,6 @@ struct Args {
 enum Commands {
     SerdeJson,
     SerdeJsonSlice,
-    SimdJson,
-    SonicRs,
     /// Load the JSON and write a bincode sibling file (one-time conversion).
     Convert,
     Bincode,
@@ -53,16 +51,6 @@ fn main() -> anyhow::Result<()> {
         Commands::SerdeJsonSlice => {
             let _merkle_trees =
                 GeneratedMerkleTreeCollection::new_from_file_serde_json_slice(&merkle_tree_path)
-                    .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
-        }
-        Commands::SimdJson => {
-            let _merkle_trees =
-                GeneratedMerkleTreeCollection::new_from_file_simd_json(&merkle_tree_path)
-                    .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
-        }
-        Commands::SonicRs => {
-            let _merkle_trees =
-                GeneratedMerkleTreeCollection::new_from_file_sonic_rs(&merkle_tree_path)
                     .map_err(|e| anyhow::anyhow!("Failed to load merkle tree: {e}"))?;
         }
         Commands::Convert => {
