@@ -1,1 +1,1 @@
-# JSON Reader
+# Merkle Tree Collection Reader
