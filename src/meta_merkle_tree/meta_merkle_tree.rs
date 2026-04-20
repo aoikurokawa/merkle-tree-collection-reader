@@ -197,9 +197,9 @@ mod tests {
     use solana_program::{hash::Hash, pubkey::Pubkey};
     use solana_sdk::{signature::Keypair, signer::Signer};
 
+    use crate::meta_merkle_tree::generated_merkle_tree::{self, GeneratedMerkleTree};
+
     use super::*;
-    use crate::generated_merkle_tree::{self}; // Updated import
-    use crate::generated_merkle_tree::{GeneratedMerkleTree, GeneratedMerkleTreeCollection};
 
     pub fn new_test_key() -> Pubkey {
         Keypair::new().pubkey()
