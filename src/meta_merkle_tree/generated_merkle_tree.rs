@@ -274,9 +274,10 @@ impl GeneratedMerkleTreeCollection {
     pub fn new_from_file_wincode(path: &PathBuf) -> Result<Self, MerkleRootGeneratorError> {
         let bytes = std::fs::read(path)?;
         let config = wincode::config::Configuration::default().disable_preallocation_size_limit();
-        let collection = <wincode_schema::CollectionW as wincode::config::Deserialize<'_, _>>::deserialize(
-            &bytes, config,
-        )?;
+        let collection =
+            <wincode_schema::CollectionW as wincode::config::Deserialize<'_, _>>::deserialize(
+                &bytes, config,
+            )?;
         Ok(collection)
     }
 
@@ -376,11 +377,11 @@ impl TreeNode {
         validator_fee_bps: u16,
         epoch: u64,
     ) -> Result<Option<Vec<Self>>, MerkleRootGeneratorError> {
-        let protocol_fee_amount: u64 = mul_div(total_tips, protocol_fee_bps, MAX_BPS as u64)?;
+        let protocol_fee_amount: u64 = mul_div(total_tips, protocol_fee_bps, MAX_BPS)?;
 
         // For Priority Fee Distributions, there is no validator amount, 0 is passed in for
         // validator_fee_bps
-        let mut validator_amount = mul_div(total_tips, validator_fee_bps as u64, MAX_BPS as u64)?;
+        let mut validator_amount = mul_div(total_tips, validator_fee_bps as u64, MAX_BPS)?;
 
         let (updated_validator_amount, remaining_total_rewards) = validator_amount
             .checked_add(protocol_fee_amount)

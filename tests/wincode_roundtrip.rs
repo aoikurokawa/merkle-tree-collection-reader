@@ -72,8 +72,8 @@ fn wincode_file_roundtrip_preserves_collection() {
     collection
         .write_wincode_to_file(&path)
         .expect("write wincode");
-    let decoded = GeneratedMerkleTreeCollection::new_from_file_wincode(&path)
-        .expect("read wincode");
+    let decoded =
+        GeneratedMerkleTreeCollection::new_from_file_wincode(&path).expect("read wincode");
 
     let _ = fs::remove_file(&path);
 
